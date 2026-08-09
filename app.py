@@ -21,6 +21,8 @@ os.makedirs(RESULT_DIR, exist_ok=True)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
 
+print("Flask app initialised — no ML libraries loaded yet", flush=True)
+
 
 @app.route("/")
 def index():
