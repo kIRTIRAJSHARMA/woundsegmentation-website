@@ -93,8 +93,12 @@ analyzeBtn.addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("image", selectedFile);
 
+  const apiUrl = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "/predict"
+    : "https://woundsegmentation-chwb.onrender.com/predict";
+
   try {
-    const res = await fetch("https://woundsegmentation-chwb.onrender.com/predict", {
+    const res = await fetch(apiUrl, {
       method: "POST",
       body: formData,
     });
