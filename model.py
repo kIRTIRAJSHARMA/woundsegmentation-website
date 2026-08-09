@@ -23,7 +23,7 @@ IMG_MEAN = [0.485, 0.456, 0.406]
 IMG_STD = [0.229, 0.224, 0.225]
 THRESHOLD = 0.5
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"  # Render Free is CPU-only; no CUDA available
 
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 WEIGHTS_DIR = os.path.join(BASE_DIR, "model_weights")

@@ -11,7 +11,7 @@ import uuid
 import cv2
 from flask import Flask, render_template, request, jsonify, url_for
 
-from model import run_inference, load_model, download_weights
+from model import run_inference, load_model
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
@@ -24,8 +24,7 @@ os.makedirs(RESULT_DIR, exist_ok=True)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload limit
 
-# Download weights at startup if not present — model itself loads lazily on first request
-download_weights()
+# Model and weights load lazily on first /predict request
 
 
 @app.route("/")
