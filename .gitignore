@@ -6,3 +6,4 @@ static/uploads/*
 static/results/*
 !static/results/.gitkeep
 model_weights/*.pth
+*.pth
