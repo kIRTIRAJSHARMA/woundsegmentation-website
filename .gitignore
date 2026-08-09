@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+static/uploads/*
+!static/uploads/.gitkeep
+static/results/*
+!static/results/.gitkeep
+model_weights/*.pth

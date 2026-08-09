@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WoundSeg — Wound Segmentation Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#" class="brand">
+        <svg class="brand-cross" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="6.5" y="0" width="3" height="16" rx="0.75" fill="currentColor"/>
+          <rect x="0" y="6.5" width="16" height="3" rx="0.75" fill="currentColor"/>
+        </svg>
+        <span class="brand-text">WoundSeg</span>
+      </a>
+      <nav class="header-nav">
+        <button class="nav-link" id="aboutBtn" type="button">About</button>
+        <a href="#" class="nav-btn">Research Tool</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Deep Learning Segmentation</p>
+      <h1 class="hero-heading">Wound <em>Analysis</em> Tool</h1>
+      <p class="hero-body">Upload a wound image and the model will detect, segment,<br class="br-desktop" /> and measure the wound region automatically.</p>
+    </div>
+  </section>
+
+  <main class="site-main">
+
+    <section class="upload-card">
+      <div class="upload-card-header">
+        <h2 class="upload-card-title">Upload Wound Image</h2>
+        <p class="upload-card-sub">Supported formats: JPG, PNG, BMP &mdash; max 10 MB</p>
+      </div>
+
+      <label for="fileInput" class="drop-zone" id="dropZone">
+        <div id="dropContent" class="drop-content">
+          <svg class="drop-upload-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M18 24V10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M12 16l6-6 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 28h24" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <p class="drop-primary">Drag and drop or tap to select</p>
+          <p class="drop-or">or</p>
+          <span class="drop-browse-btn">Browse Files</span>
+          <p class="drop-limit">Max file size: 10 MB</p>
+        </div>
+        <img id="preview" alt="Selected image preview" />
+      </label>
+      <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.bmp" capture="environment" hidden />
+
+      <div class="upload-actions">
+        <button class="btn-run" id="analyzeBtn" disabled>Run Analysis</button>
+        <div class="status-msg" id="statusMsg">
+          <span class="spinner" id="spinner"></span>
+          <span id="statusText"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultsSection" class="results-section">
+      <div class="results-heading-row">
+        <h2 class="results-heading">Analysis Results</h2>
+        <span class="results-note">For research use only</span>
+      </div>
+
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="result-card-label">
+            <span class="label-title">Original</span>
+            <span class="label-tag">Input</span>
+          </div>
+          <img id="imgOriginal" alt="Original image" />
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">
+            <span class="label-title">Overlay</span>
+            <span class="label-tag">Segmentation</span>
+          </div>
+          <img id="imgOverlay" alt="Segmentation overlay" />
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">
+            <span class="label-title">Heatmap</span>
+            <span class="label-tag">Confidence</span>
+          </div>
+          <img id="imgHeatmap" alt="Confidence heatmap" />
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">
+            <span class="label-title">Binary Mask</span>
+            <span class="label-tag">Mask</span>
+          </div>
+          <img id="imgMask" alt="Binary mask" />
+        </div>
+      </div>
+
+      <div class="wound-stat-row">
+        <div class="wound-stat">
+          <span class="wound-stat-label">Wound Coverage</span>
+          <span class="wound-stat-value" id="areaValue">—</span>
+          <span class="wound-stat-unit">percent of total image area</span>
+        </div>
+        <div class="wound-stat">
+          <span class="wound-stat-label">Segmentation</span>
+          <span class="wound-stat-value wound-stat-ok" id="statusLabel">Complete</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-strip">
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+        <h3 class="feature-title">Accurate Segmentation</h3>
+        <p class="feature-desc">Deep learning model for precise wound region detection.</p>
+      </div>
+      <div class="feature-divider"></div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="1"/>
+          <path d="M3 9h18M9 21V9"/>
+        </svg>
+        <h3 class="feature-title">Automatic Measurement</h3>
+        <p class="feature-desc">Calculates area, perimeter, and other key wound metrics.</p>
+      </div>
+      <div class="feature-divider"></div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="5" y="11" width="14" height="10" rx="1"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        </svg>
+        <h3 class="feature-title">Secure &amp; Private</h3>
+        <p class="feature-desc">Your data is processed securely and never stored on our servers.</p>
+      </div>
+      <div class="feature-divider"></div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v12"/>
+          <path d="M2 19h20"/>
+          <path d="M9 6V4M15 6V4"/>
+        </svg>
+        <h3 class="feature-title">Research Grade</h3>
+        <p class="feature-desc">Built for researchers and healthcare professionals.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-text">
+      Wound Segmentation Tool &mdash; <span class="footer-disclaimer">For research and educational purposes only.</span>
+    </p>
+  </footer>
+
+  <!-- About drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+  <aside class="about-drawer" id="aboutDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true">
+    <div class="drawer-inner">
+
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <svg class="drawer-cross" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <rect x="6.5" y="0" width="3" height="16" rx="0.75" fill="currentColor"/>
+            <rect x="0" y="6.5" width="16" height="3" rx="0.75" fill="currentColor"/>
+          </svg>
+          <span id="drawerTitle" class="drawer-title">WoundSeg</span>
+        </div>
+        <button class="drawer-close" id="drawerClose" type="button" aria-label="Close about panel">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M2 2l12 12M14 2L2 14"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+
+        <p class="drawer-lead">WOUNDSEG is a deep learning&ndash;based wound segmentation research tool developed to automatically identify and delineate wound regions from clinical images.</p>
+
+        <div class="drawer-section">
+          <h3 class="drawer-section-title">Model Architecture</h3>
+          <p class="drawer-text">The primary segmentation model uses a U-Net architecture with an EfficientNet-B4 encoder, initialized with ImageNet-pretrained weights. The model processes wound images at a standardized resolution and produces a binary segmentation mask representing the detected wound region.</p>
+        </div>
+
+        <div class="drawer-section">
+          <h3 class="drawer-section-title">Training &amp; Evaluation</h3>
+          <p class="drawer-text">To improve segmentation performance, the training pipeline combines Binary Cross-Entropy and Dice Loss, along with extensive image augmentation and SCSE attention in the decoder. Model performance is evaluated using Dice Score and Intersection over Union (IoU), providing quantitative measures of how closely the predicted wound region matches the reference segmentation.</p>
+        </div>
+
+        <div class="drawer-section">
+          <h3 class="drawer-section-title">Few-Shot Extension</h3>
+          <p class="drawer-text">WOUNDSEG also explores a prototype-guided few-shot segmentation approach, allowing the model to use a labelled support example to guide segmentation of a new query image. This extension investigates how wound segmentation can be adapted when only limited labelled examples are available.</p>
+        </div>
+
+        <div class="drawer-notice">
+          <p>The platform is intended as a research and educational tool for exploring deep learning&ndash;based wound segmentation. It is not designed to replace clinical assessment or professional medical judgment.</p>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
