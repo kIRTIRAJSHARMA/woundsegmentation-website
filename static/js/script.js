@@ -94,11 +94,18 @@ analyzeBtn.addEventListener("click", async () => {
   formData.append("image", selectedFile);
 
   try {
-    const res = await fetch("/predict", {
+    const res = await fetch("https://woundsegmentation-chwb.onrender.com/predict", {
       method: "POST",
       body: formData,
     });
-    const data = await res.json();
+
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (_) {
+      throw new Error(`Server returned non-JSON response (HTTP ${res.status})`);
+    }
 
     if (!res.ok) {
       throw new Error(data.error || "Prediction failed");
