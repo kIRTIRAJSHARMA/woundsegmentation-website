@@ -7,6 +7,8 @@ with no changes needed.
 """
 
 import os
+import sys
+import urllib.request
 import cv2
 import numpy as np
 import torch
@@ -23,25 +25,31 @@ THRESHOLD = 0.5
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+WEIGHTS_DIR = os.path.join(BASE_DIR, "model_weights")
+WEIGHTS_PATH = os.path.join(WEIGHTS_DIR, "best_baseline.pth")
+WEIGHTS_URL  = "https://huggingface.co/kirtiraj7/woundseg-model/resolve/main/best_baseline.pth"
 
 
-def resolve_weights_path():
-    """Find the trained checkpoint in the project or a nearby common location."""
-    candidates = [
-        os.path.join(BASE_DIR, "model_weights", "best_baseline.pth"),
-        os.path.join(BASE_DIR, "best_baseline.pth"),
-        os.path.join(os.path.dirname(BASE_DIR), "best_baseline.pth"),
-        os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "best_baseline.pth"),
-        os.path.join(os.path.expanduser("~"), "Downloads", "best_baseline.pth"),
-    ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
-    return candidates[0]
+def download_weights():
+    """Download model weights from Hugging Face if not already present."""
+    if os.path.exists(WEIGHTS_PATH):
+        return
 
+    os.makedirs(WEIGHTS_DIR, exist_ok=True)
+    print(f"Downloading model weights from {WEIGHTS_URL} ...", flush=True)
 
-WEIGHTS_PATH = resolve_weights_path()
+    try:
+        urllib.request.urlretrieve(WEIGHTS_URL, WEIGHTS_PATH)
+        size_mb = os.path.getsize(WEIGHTS_PATH) / (1024 * 1024)
+        print(f"Model weights downloaded successfully ({size_mb:.1f} MB)", flush=True)
+    except Exception as e:
+        # Remove partial file if download failed
+        if os.path.exists(WEIGHTS_PATH):
+            os.remove(WEIGHTS_PATH)
+        print(f"ERROR: Failed to download model weights: {e}", flush=True)
+        sys.exit(1)
+
 
 # ── Preprocessing (identical to val_transform in the notebook) ───────
 val_transform = A.Compose([
@@ -54,15 +62,16 @@ _model = None  # loaded once, cached
 
 
 def load_model():
-    """Loads the model once and keeps it in memory (singleton pattern)."""
+    """Downloads weights if needed, then loads the model once (singleton)."""
     global _model
     if _model is not None:
         return _model
 
+    download_weights()
+
     if not os.path.exists(WEIGHTS_PATH):
         raise FileNotFoundError(
-            f"Model weights not found. Looked for: {WEIGHTS_PATH}. "
-            "Copy your trained best_baseline.pth into the model_weights/ folder or place it in the project root."
+            f"Model weights not found at {WEIGHTS_PATH} and download did not succeed."
         )
 
     model = smp.Unet(
