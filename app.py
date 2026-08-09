@@ -24,6 +24,9 @@ os.makedirs(RESULT_DIR, exist_ok=True)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload limit
 
+# Load model at module import time so gunicorn workers have it ready
+load_model()
+
 
 @app.route("/")
 def index():

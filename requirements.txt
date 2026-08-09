@@ -1,4 +1,5 @@
 flask==3.0.3
+gunicorn==22.0.0
 torch==2.3.1
 torchvision==0.18.1
 segmentation-models-pytorch==0.3.4
