@@ -55,14 +55,14 @@ def predict():
         import cv2
         from model import run_inference
 
-        print(f"Running inference on {upload_name}", flush=True)
+        print(f"=== PREDICT START: {upload_name} ===", flush=True)
         result = run_inference(upload_path)
 
         cv2.imwrite(os.path.join(RESULT_DIR, overlay_name), result["overlay"])
         cv2.imwrite(os.path.join(RESULT_DIR, mask_name),    result["mask"])
         cv2.imwrite(os.path.join(RESULT_DIR, heatmap_name), result["heatmap"])
 
-        print(f"Inference complete — wound area {result['wound_area_pct']}%", flush=True)
+        print(f"=== PREDICT DONE: wound {result['wound_area_pct']}% ===", flush=True)
 
     except Exception as e:
         print(f"ERROR in predict: {e}", flush=True)
