@@ -10,9 +10,9 @@ import os
 import uuid
 from flask import Flask, render_template, request, jsonify, url_for
 
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR  = os.path.join(BASE_DIR, "static", "uploads")
-RESULT_DIR  = os.path.join(BASE_DIR, "static", "results")
+BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_DIR   = os.path.join(BASE_DIR, "static", "uploads")
+RESULT_DIR   = os.path.join(BASE_DIR, "static", "results")
 ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -47,22 +47,25 @@ def predict():
     upload_path = os.path.join(UPLOAD_DIR, upload_name)
     file.save(upload_path)
 
+    overlay_name = f"{uid}_overlay.png"
+    mask_name    = f"{uid}_mask.png"
+    heatmap_name = f"{uid}_heatmap.png"
+
     try:
-        # Deferred import — torch/smp load only on first request
         import cv2
         from model import run_inference
 
+        print(f"Running inference on {upload_name}", flush=True)
         result = run_inference(upload_path)
-
-        overlay_name = f"{uid}_overlay.png"
-        mask_name    = f"{uid}_mask.png"
-        heatmap_name = f"{uid}_heatmap.png"
 
         cv2.imwrite(os.path.join(RESULT_DIR, overlay_name), result["overlay"])
         cv2.imwrite(os.path.join(RESULT_DIR, mask_name),    result["mask"])
         cv2.imwrite(os.path.join(RESULT_DIR, heatmap_name), result["heatmap"])
 
+        print(f"Inference complete — wound area {result['wound_area_pct']}%", flush=True)
+
     except Exception as e:
+        print(f"ERROR in predict: {e}", flush=True)
         return jsonify({"error": str(e)}), 500
 
     return jsonify({
